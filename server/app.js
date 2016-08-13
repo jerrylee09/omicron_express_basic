@@ -2,21 +2,46 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var path = require('path');
+var validate = require('./validation.js');
 
 var songs = []; //stores our songs
 
 app.set('port', process.env.PORT || 3000);
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
 /**
  * POST /songs
  *
  * Places song into songs array
  */
-app.post('/songs', function (req, res) {
+
+// app.use('/songs', validate);
+
+app.post('/songs', function(req, res) {
+  var addDate = new Date();
   var song = req.body;
-  songs.push(song);
-  res.sendStatus(200);
+  var check = false;
+  var duplication = false;
+  if (song.title == '' || song.artist == '') {
+      // res.status(400).send('Please insert title');
+      console.log('please insert name');
+      check = true;
+  }
+  for (var i = 0; i < songs.length; i++) {
+      if (song.title === songs[i].title && song.artist === songs[i].artist) {
+          console.log('please insert name1');
+          duplication = true;
+      }
+  }
+  if (check === true || duplication === true) {
+      res.sendStatus(400);
+      console.log('return date', duplication);
+  } else {
+      console.log(song);
+      res.sendStatus(200);
+      songs.push(song);
+  }
 });
 
 app.get('/songs', function (req, res) {
